@@ -1,0 +1,52 @@
+#!groovy
+
+def channel = '#devops-builds'
+
+properties(
+  [[$class: 'GithubProjectProperty', projectUrlStr: 'http://github.com/hmcts/vnet-peers-role/']]
+//   pipelineTriggers([[$class: 'GitHubPushTrigger']])]
+)
+
+@Library('Reform') _
+
+node {
+  ws('vnet-peers-role') {
+    try {
+      wrap([$class: 'AnsiColorBuildWrapper', colorMapName: 'xterm']) {
+
+        deleteDir()
+
+        stage('Checkout') {
+          checkout scm
+          dir('vnet-peers-role') {
+            git url: "https://github.com/hmcts/vnet-peers-role", branch: "master"
+          }
+        }
+
+        stage('Vars Checkout') {
+          checkout scm
+          dir('ansible-management') {
+          git url: "git@git.reform.hmcts.net:devops/ansible-management.git", branch: "master"
+          }
+        }
+
+        stage('Apply vnet-peers') {
+          sh """
+            set +x
+            ansible-playbook tasks/main.yml
+             """
+        }
+      }
+    } catch (err) {
+      notifyBuildFailure channel: '#devops-builds'
+      throw err
+    } finally {
+      stage('Cleanup') {
+          sh '''
+            echo "Handled by deleteDir()"
+            '''
+        }
+      deleteDir()
+    }
+  }
+}

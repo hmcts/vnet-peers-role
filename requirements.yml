@@ -1,0 +1,5 @@
+---
+- name: vnet-peers-role
+  src: https://github.com/hmcts/vnet-peers-role
+  scm: git
+  version: master

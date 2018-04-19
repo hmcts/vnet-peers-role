@@ -1,0 +1,36 @@
+---
+- name: Run this play locally
+  hosts: 127.0.0.1
+  connection: local
+
+  # Edit the below if outside HMCTS (it won't work otherwise.)
+  vars_files:
+    - ../ansible-management/vnet-peers-vars/main.yml
+
+  tasks:
+    - name: "See if the Vnet Peer Exists"
+      shell: az account set --subscription {{ item.value.subscription }} \
+             && az network vnet peering show \
+             --resource-group {{ item.value.resource_group_name }} \
+             --vnet {{ item.value.local_vnet }} \
+             --name {{ item.key }}
+      with_dict: "{{ vnet_peers }}"
+      register: vnetcheck
+      changed_when: vnetcheck.stdout == ""
+
+    - name: "Print vnetcheck stdout debug info"
+      debug:
+        msg: "{{ item.item.key }}"
+      with_items: "{{ vnetcheck.results }}"
+      when: item.changed
+
+    - name: "Create nonexistent peers"
+      shell: az account set --subscription {{ item.item.value.subscription }} \
+             && az network vnet peering create \
+             --name {{ item.item.key }}
+             --resource-group {{ item.item.value.resource_group_name }} \
+             --vnet-name {{ item.item.value.local_vnet }} \
+             --remote-vnet-id /subscriptions/{{ item.item.value.r_vnet_aid }}/resourceGroups/{{ item.item.value.r_vnet_rg }}/providers/Microsoft.Network/virtualNetworks/{{ item.item.value.r_vnet }} \
+             --allow-vnet-access
+      with_items: "{{ vnetcheck.results }}"
+      when: item.changed
