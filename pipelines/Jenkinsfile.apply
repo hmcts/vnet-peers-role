@@ -27,7 +27,7 @@ node {
         stage('Vars Checkout') {
           checkout scm
           dir('ansible-management') {
-          git url: "https://github.com/hmcts/ansible-management", branch: "master", credentialsId: "jenkins-reform-hmcts"
+          git url: "https://github.com/hmcts/ansible-management", branch: "master", credentialsId: "jenkins-public-github-api-token"
           }
         }
 
