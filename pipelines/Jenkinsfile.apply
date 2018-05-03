@@ -1,7 +1,7 @@
 #!groovy
 
 def channel = '#devops-builds'
-def credentials = "${env.credentials}"
+//def credentials = "${env.credentials}"
 
 properties(
   [[$class: 'GithubProjectProperty', projectUrlStr: 'http://github.com/hmcts/vnet-peers-role/']]
@@ -27,7 +27,7 @@ node {
         stage('Vars Checkout') {
           checkout scm
           dir('ansible-management') {
-          git url: "https://github.com/hmcts/ansible-management", branch: "master", credentialsId: "${env.credentials}"
+          git url: "https://github.com/hmcts/ansible-management", branch: "master", credentialsId: "jenkins-reform-hmcts"
           }
         }
 
