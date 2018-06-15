@@ -8,6 +8,9 @@
     - ../ansible-management/vnet-peers-vars/main.yml
 
   tasks:
+    - name: "Refresh Subscriptions"
+      shell: az account list --refresh
+
     - name: "See if the Vnet Peer Exists"
       shell: az account set --subscription {{ item.value.subscription }} \
              && az network vnet peering show \
