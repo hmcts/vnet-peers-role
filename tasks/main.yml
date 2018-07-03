@@ -10,6 +10,7 @@
   tasks:
     - name: "Refresh Subscriptions"
       shell: az account list --refresh
+      changed_when: false
 
     - name: "See if the Vnet Peer Exists"
       shell: az account set --subscription {{ item.value.subscription }} \
